@@ -1,0 +1,35 @@
+name: Build WinForms EXE
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show tree (debug)
+        run: |
+          echo ROOT:
+          dir
+          echo RMPRO:
+          dir RMPRO
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore RMPRO/RishtaManagerPro.csproj
+
+      - name: Publish (single-file EXE)
+        run: dotnet publish RMPRO/RishtaManagerPro.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RishtaManagerPro-win-x64
+          path: RMPRO/bin/Release/net8.0-windows/win-x64/publish/*
